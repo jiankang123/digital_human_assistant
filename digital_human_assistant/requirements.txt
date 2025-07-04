@@ -1,0 +1,53 @@
+# 数字人交互助手 - 通义千问版本
+# Python依赖包列表
+
+# 核心依赖 - Python标准库自带，无需安装
+# http.server - HTTP服务器
+# ssl - SSL/TLS支持  
+# json - JSON处理
+# datetime - 日期时间处理
+# urllib.parse - URL解析
+# subprocess - 子进程管理
+# argparse - 命令行参数解析
+
+# 必需依赖 - 需要安装
+requests>=2.28.0         # HTTP请求库，用于调用通义千问API
+cryptography>=3.4.8      # SSL证书生成（可选，fallback到OpenSSL）
+
+# 开发依赖（可选）
+# 以下依赖用于增强开发体验，非必需
+
+# SSL证书生成（备选方案）
+# 如果系统没有OpenSSL命令，需要cryptography库
+# pip install cryptography
+
+# 命令行体验增强（可选）
+# pip install colorama  # Windows下彩色输出支持
+
+# API开发调试工具（可选）  
+# pip install httpie    # 命令行HTTP客户端
+# pip install curl      # 另一个HTTP客户端
+
+# 性能监控（可选）
+# pip install psutil    # 系统资源监控
+
+# 日志增强（可选）
+# pip install colorlog  # 彩色日志输出
+
+# 安装指令:
+# pip install -r requirements.txt
+
+# 或者只安装核心依赖:
+# pip install requests cryptography
+
+# 可选依赖 - 用于更好的命令行体验
+colorama>=0.4.4
+
+# 开发依赖 (可选)
+# 用于代码格式化和检查
+black>=22.0.0
+flake8>=4.0.0
+
+# 文档生成 (可选)
+mkdocs>=1.4.0
+mkdocs-material>=8.0.0

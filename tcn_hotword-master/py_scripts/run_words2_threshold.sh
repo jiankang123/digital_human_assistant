@@ -1,0 +1,23 @@
+#!/bin/bash
+
+dir=$1
+
+./py_scripts/run_words2.sh \
+    ./build/hotword_qcc_model_infer \
+    ${dir}/testP \
+    上一首,下一首  \
+    ../torch/new_data/vivo_kws/exps/20221201/testP.trans
+
+./py_scripts/run_words2.sh \
+    ./build/hotword_qcc_model_infer \
+    ${dir}/testN \
+    上一首,下一首  \
+    ../torch/new_data/vivo_kws/exps/20221102/testN_valid.trans
+
+./py_scripts/run_words2.sh \
+    ./build/hotword_qcc_model_infer \
+    ${dir}/testN2 \
+    上一首,下一首  \
+    /media/hdd2/corpus/vivo_data/sbc_out/neg_1115_1117.trans
+
+rm -r ${dir}/test*/scores

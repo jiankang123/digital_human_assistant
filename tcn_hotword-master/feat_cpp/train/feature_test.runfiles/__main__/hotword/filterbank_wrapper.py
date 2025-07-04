@@ -1,0 +1,1 @@
+/root/.cache/bazel/_bazel_root/5633ae285b27b5b7c60069fb2192b08d/execroot/__main__/bazel-out/k8-fastbuild/bin/hotword/filterbank_wrapper.py

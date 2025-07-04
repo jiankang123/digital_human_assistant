@@ -1,0 +1,12 @@
+-whole-archive
+bazel-out/k8-fastbuild/bin/hotword/_objs/filterbank_wrapper_cc/filterbank_wrapper.pic.o
+-no-whole-archive
+-whole-archive
+bazel-out/k8-fastbuild/bin/hotword/_objs/filterbank/filterbank.pic.o
+-no-whole-archive
+-whole-archive
+bazel-out/k8-fastbuild/bin/external/fft2d/_objs/fft2d/fftsg.pic.o
+-no-whole-archive
+-lm
+-lstdc++
+-lm

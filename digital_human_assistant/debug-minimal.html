@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最小化调试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        #chatMessages {
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            overflow-y: auto;
+            background: #fafafa;
+            margin-bottom: 15px;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        .user-message {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+        }
+        .assistant-message {
+            background: #e9ecef;
+            color: #333;
+        }
+        .system-message {
+            background: #fff3cd;
+            color: #856404;
+            text-align: center;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        #textInput {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .quick-questions {
+            margin: 20px 0;
+        }
+        .quick-btn {
+            background: #6c757d;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .quick-btn:hover {
+            background: #545b62;
+        }
+        .loading {
+            color: #6c757d;
+            font-style: italic;
+        }
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>最小化调试页面 - 通义千问</h1>
+        
+        <div id="chatMessages"></div>
+        
+        <div class="quick-questions">
+            <strong>快捷问题：</strong><br>
+            <button class="quick-btn" onclick="askQuestion('你好，请介绍一下自己')">你好，请介绍一下自己</button>
+            <button class="quick-btn" onclick="askQuestion('今天是几号？现在是什么季节？')">今天是几号？现在是什么季节？</button>
+            <button class="quick-btn" onclick="askQuestion('你有什么功能？能帮我做什么？')">你有什么功能？</button>
+            <button class="quick-btn" onclick="askQuestion('给我讲个有趣的故事')">给我讲个有趣的故事</button>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="textInput" placeholder="请输入您的问题..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">发送</button>
+            <button onclick="clearHistory()">清空</button>
+        </div>
+    </div>
+
+    <script>
+        // 简化的应用程序类
+        class MinimalApp {
+            constructor() {
+                this.chatMessages = document.getElementById('chatMessages');
+                this.textInput = document.getElementById('textInput');
+                this.conversationHistory = [];
+                
+                // 添加欢迎消息
+                this.addMessage('system', '您好！我是基于通义千问的数字人助手，很高兴为您服务！');
+            }
+
+            async processUserMessage(message) {
+                try {
+                    // 添加用户消息
+                    this.addMessage('user', message);
+                    
+                    // 显示加载状态
+                    const loadingId = this.addMessage('assistant', '正在思考中...', true);
+
+                    // 调用API
+                    const response = await this.callQwenAPI(message);
+                    
+                    // 移除加载消息
+                    this.removeMessage(loadingId);
+                    
+                    // 添加回答
+                    this.addMessage('assistant', response);
+
+                } catch (error) {
+                    console.error('处理消息失败:', error);
+                    
+                    // 移除加载消息
+                    const loadingElements = this.chatMessages.querySelectorAll('.loading');
+                    loadingElements.forEach(el => el.remove());
+                    
+                    // 显示错误
+                    this.addMessage('assistant', '抱歉，我遇到了一些问题，请稍后再试。错误：' + error.message);
+                }
+            }
+
+            async callQwenAPI(message) {
+                // 添加到历史
+                this.conversationHistory.push({
+                    role: 'user',
+                    content: message
+                });
+
+                // 保持历史长度
+                if (this.conversationHistory.length > 20) {
+                    this.conversationHistory = this.conversationHistory.slice(-20);
+                }
+
+                const requestBody = {
+                    model: 'qwen-turbo',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: '你是一个友善、专业的AI助手。请用简洁、自然的中文回答用户的问题。'
+                        },
+                        ...this.conversationHistory
+                    ],
+                    max_tokens: 1500,
+                    temperature: 0.7
+                };
+
+                console.log('发送API请求:', requestBody);
+
+                const response = await fetch('/api/qwen', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API请求失败: ${response.status} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log('API响应:', data);
+
+                if (data.error) {
+                    throw new Error(data.error.message || 'API返回错误');
+                }
+
+                const assistantMessage = data.choices?.[0]?.message?.content;
+                if (!assistantMessage) {
+                    throw new Error('API返回的响应格式不正确');
+                }
+
+                // 添加到历史
+                this.conversationHistory.push({
+                    role: 'assistant',
+                    content: assistantMessage
+                });
+
+                return assistantMessage;
+            }
+
+            addMessage(type, content, isLoading = false) {
+                const messageDiv = document.createElement('div');
+                const messageId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                messageDiv.id = messageId;
+                messageDiv.className = `message ${type}-message`;
+                if (isLoading) messageDiv.classList.add('loading');
+                
+                messageDiv.textContent = content;
+                
+                // 添加时间戳
+                if (!isLoading) {
+                    const timeSpan = document.createElement('small');
+                    timeSpan.style.display = 'block';
+                    timeSpan.style.marginTop = '5px';
+                    timeSpan.style.opacity = '0.7';
+                    timeSpan.textContent = new Date().toLocaleTimeString();
+                    messageDiv.appendChild(timeSpan);
+                }
+                
+                this.chatMessages.appendChild(messageDiv);
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+                
+                return messageId;
+            }
+
+            removeMessage(messageId) {
+                const messageElement = document.getElementById(messageId);
+                if (messageElement) {
+                    messageElement.remove();
+                }
+            }
+
+            clearHistory() {
+                this.chatMessages.innerHTML = '';
+                this.conversationHistory = [];
+                this.addMessage('system', '聊天记录已清空');
+            }
+        }
+
+        // 初始化应用
+        const app = new MinimalApp();
+
+        // 全局函数
+        function sendMessage() {
+            const message = app.textInput.value.trim();
+            if (message) {
+                app.textInput.value = '';
+                app.processUserMessage(message);
+            }
+        }
+
+        function askQuestion(question) {
+            app.processUserMessage(question);
+        }
+
+        function clearHistory() {
+            app.clearHistory();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // 错误处理
+        window.addEventListener('error', (event) => {
+            console.error('JavaScript错误:', event.error);
+            // 不显示错误给用户，只在控制台记录
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Promise错误:', event.reason);
+            event.preventDefault();
+        });
+    </script>
+</body>
+</html> 

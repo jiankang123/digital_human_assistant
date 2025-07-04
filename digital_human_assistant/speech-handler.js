@@ -1,0 +1,413 @@
+// 语音处理管理器
+class SpeechHandler {
+    constructor() {
+        this.recognition = null;
+        this.synthesis = window.speechSynthesis;
+        this.isListening = false;
+        this.isSpeaking = false;
+        this.currentUtterance = null;
+        this.userInteracted = false; // 用户是否已交互
+        
+        // 配置参数
+        this.config = {
+            recognition: {
+                language: 'zh-CN',
+                continuous: false,
+                interimResults: true,
+                maxAlternatives: 1
+            },
+            synthesis: {
+                voice: null,
+                rate: 1.0,
+                pitch: 1.0,
+                volume: 0.8,
+                language: 'zh-CN'
+            }
+        };
+
+        // 事件回调
+        this.callbacks = {
+            onSpeechStart: null,
+            onSpeechEnd: null,
+            onSpeechResult: null,
+            onSpeechError: null,
+            onTTSStart: null,
+            onTTSEnd: null,
+            onTTSError: null
+        };
+
+        this.initializeSpeechRecognition();
+        this.initializeSpeechSynthesis();
+        this.setupUserInteractionListener();
+    }
+
+    // 设置用户交互监听器
+    setupUserInteractionListener() {
+        const enableAudio = () => {
+            this.userInteracted = true;
+            console.log('用户已交互，启用音频播放');
+            document.removeEventListener('click', enableAudio);
+            document.removeEventListener('touchstart', enableAudio);
+        };
+
+        document.addEventListener('click', enableAudio);
+        document.addEventListener('touchstart', enableAudio);
+    }
+
+    // 初始化语音识别
+    initializeSpeechRecognition() {
+        // 检查浏览器支持
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            console.warn('浏览器不支持语音识别功能');
+            return;
+        }
+
+        // 创建语音识别实例
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        this.recognition = new SpeechRecognition();
+
+        // 配置语音识别
+        this.recognition.continuous = this.config.recognition.continuous;
+        this.recognition.interimResults = this.config.recognition.interimResults;
+        this.recognition.lang = this.config.recognition.language;
+        this.recognition.maxAlternatives = this.config.recognition.maxAlternatives;
+
+        // 绑定事件
+        this.recognition.onstart = () => {
+            this.isListening = true;
+            console.log('开始语音识别');
+            if (this.callbacks.onSpeechStart) {
+                this.callbacks.onSpeechStart();
+            }
+        };
+
+        this.recognition.onend = () => {
+            this.isListening = false;
+            console.log('语音识别结束');
+            if (this.callbacks.onSpeechEnd) {
+                this.callbacks.onSpeechEnd();
+            }
+        };
+
+        this.recognition.onresult = (event) => {
+            let finalTranscript = '';
+            let interimTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            console.log('识别结果:', { final: finalTranscript, interim: interimTranscript });
+
+            if (this.callbacks.onSpeechResult) {
+                this.callbacks.onSpeechResult({
+                    final: finalTranscript,
+                    interim: interimTranscript,
+                    confidence: event.results[event.resultIndex] ? event.results[event.resultIndex][0].confidence : 0
+                });
+            }
+        };
+
+        this.recognition.onerror = (event) => {
+            console.error('语音识别错误:', event.error);
+            this.isListening = false;
+            
+            let errorMessage = '语音识别出现错误';
+            switch (event.error) {
+                case 'no-speech':
+                    errorMessage = '没有检测到语音，请重试';
+                    break;
+                case 'audio-capture':
+                    errorMessage = '无法访问麦克风，请检查权限设置';
+                    break;
+                case 'not-allowed':
+                    errorMessage = '麦克风权限被拒绝，请允许访问麦克风';
+                    break;
+                case 'network':
+                    errorMessage = '网络错误，请检查网络连接';
+                    break;
+                case 'language-not-supported':
+                    errorMessage = '不支持当前语言设置';
+                    break;
+                default:
+                    errorMessage = `语音识别错误: ${event.error}`;
+            }
+
+            if (this.callbacks.onSpeechError) {
+                this.callbacks.onSpeechError(errorMessage);
+            }
+        };
+
+        this.recognition.onnomatch = () => {
+            console.log('没有识别到匹配的语音');
+        };
+    }
+
+    // 初始化语音合成
+    initializeSpeechSynthesis() {
+        if (!this.synthesis) {
+            console.warn('浏览器不支持语音合成功能');
+            return;
+        }
+
+        // 等待语音列表加载
+        if (this.synthesis.getVoices().length === 0) {
+            this.synthesis.addEventListener('voiceschanged', () => {
+                this.selectBestVoice();
+            });
+        } else {
+            this.selectBestVoice();
+        }
+    }
+
+    // 选择最佳语音
+    selectBestVoice() {
+        const voices = this.synthesis.getVoices();
+        console.log('可用语音数量:', voices.length);
+        
+        // 优先选择中文语音
+        const chineseVoices = voices.filter(voice => 
+            voice.lang.includes('zh') || voice.lang.includes('cmn')
+        );
+
+        console.log('中文语音数量:', chineseVoices.length);
+
+        if (chineseVoices.length > 0) {
+            // 优先选择女性语音
+            const femaleVoice = chineseVoices.find(voice => 
+                voice.name.includes('Female') || 
+                voice.name.includes('女') ||
+                voice.name.includes('Xiaoxiao') ||
+                voice.name.includes('Xiaoli')
+            );
+            
+            this.config.synthesis.voice = femaleVoice || chineseVoices[0];
+        } else if (voices.length > 0) {
+            this.config.synthesis.voice = voices[0];
+        }
+
+        console.log('选择语音:', this.config.synthesis.voice?.name || '默认语音');
+    }
+
+    // 开始语音识别
+    startListening() {
+        if (!this.recognition) {
+            throw new Error('语音识别未初始化或不支持');
+        }
+
+        if (this.isListening) {
+            console.log('正在监听中...');
+            return;
+        }
+
+        try {
+            this.recognition.start();
+        } catch (error) {
+            console.error('启动语音识别失败:', error);
+            if (this.callbacks.onSpeechError) {
+                this.callbacks.onSpeechError('启动语音识别失败');
+            }
+        }
+    }
+
+    // 停止语音识别
+    stopListening() {
+        if (this.recognition && this.isListening) {
+            this.recognition.stop();
+        }
+    }
+
+    // 文本转语音
+    speak(text, options = {}) {
+        console.log('TTS请求:', text);
+        
+        if (!this.synthesis) {
+            console.warn('语音合成不可用');
+            return Promise.reject(new Error('语音合成不可用'));
+        }
+
+        if (!this.userInteracted) {
+            console.warn('需要用户交互后才能播放音频');
+            return Promise.reject(new Error('需要用户交互后才能播放音频'));
+        }
+
+        // 停止当前播放
+        this.stopSpeaking();
+
+        return new Promise((resolve, reject) => {
+            if (!text || text.trim() === '') {
+                resolve();
+                return;
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            this.currentUtterance = utterance;
+
+            // 配置语音参数
+            utterance.voice = this.config.synthesis.voice;
+            utterance.rate = options.rate || this.config.synthesis.rate;
+            utterance.pitch = options.pitch || this.config.synthesis.pitch;
+            utterance.volume = options.volume || this.config.synthesis.volume;
+            utterance.lang = options.language || this.config.synthesis.language;
+
+            console.log('TTS配置:', {
+                voice: utterance.voice?.name,
+                rate: utterance.rate,
+                pitch: utterance.pitch,
+                volume: utterance.volume,
+                lang: utterance.lang
+            });
+
+            // 绑定事件
+            utterance.onstart = () => {
+                this.isSpeaking = true;
+                console.log('开始语音播放:', text);
+                if (this.callbacks.onTTSStart) {
+                    this.callbacks.onTTSStart(text);
+                }
+            };
+
+            utterance.onend = () => {
+                this.isSpeaking = false;
+                this.currentUtterance = null;
+                console.log('语音播放结束');
+                if (this.callbacks.onTTSEnd) {
+                    this.callbacks.onTTSEnd();
+                }
+                resolve();
+            };
+
+            utterance.onerror = (event) => {
+                this.isSpeaking = false;
+                this.currentUtterance = null;
+                console.error('语音播放错误:', event.error);
+                
+                const errorMessage = `语音播放失败: ${event.error}`;
+                if (this.callbacks.onTTSError) {
+                    this.callbacks.onTTSError(errorMessage);
+                }
+                reject(new Error(errorMessage));
+            };
+
+            // 开始播放
+            try {
+                console.log('开始语音合成...');
+                this.synthesis.speak(utterance);
+            } catch (error) {
+                console.error('启动语音播放失败:', error);
+                reject(error);
+            }
+        });
+    }
+
+    // 停止语音播放
+    stopSpeaking() {
+        if (this.synthesis && this.isSpeaking) {
+            this.synthesis.cancel();
+            this.isSpeaking = false;
+            this.currentUtterance = null;
+            console.log('停止语音播放');
+        }
+    }
+
+    // 暂停语音播放
+    pauseSpeaking() {
+        if (this.synthesis && this.isSpeaking) {
+            this.synthesis.pause();
+        }
+    }
+
+    // 恢复语音播放
+    resumeSpeaking() {
+        if (this.synthesis) {
+            this.synthesis.resume();
+        }
+    }
+
+    // 设置事件回调
+    setCallback(eventName, callback) {
+        if (this.callbacks.hasOwnProperty(eventName)) {
+            this.callbacks[eventName] = callback;
+        } else {
+            console.warn(`未知的事件回调: ${eventName}`);
+        }
+    }
+
+    // 更新配置
+    updateConfig(newConfig) {
+        // 更新语音识别配置
+        if (newConfig.recognition) {
+            Object.assign(this.config.recognition, newConfig.recognition);
+            if (this.recognition) {
+                this.recognition.lang = this.config.recognition.language;
+                this.recognition.continuous = this.config.recognition.continuous;
+                this.recognition.interimResults = this.config.recognition.interimResults;
+            }
+        }
+
+        // 更新语音合成配置
+        if (newConfig.synthesis) {
+            Object.assign(this.config.synthesis, newConfig.synthesis);
+        }
+    }
+
+    // 获取可用语音列表
+    getAvailableVoices() {
+        return this.synthesis ? this.synthesis.getVoices() : [];
+    }
+
+    // 检查功能支持
+    getSupportInfo() {
+        return {
+            speechRecognition: !!(window.SpeechRecognition || window.webkitSpeechRecognition),
+            speechSynthesis: !!window.speechSynthesis,
+            voicesAvailable: this.synthesis ? this.synthesis.getVoices().length : 0,
+            userInteracted: this.userInteracted
+        };
+    }
+
+    // 获取当前状态
+    getStatus() {
+        return {
+            isListening: this.isListening,
+            isSpeaking: this.isSpeaking,
+            config: this.config,
+            supportInfo: this.getSupportInfo()
+        };
+    }
+
+    // 测试语音功能
+    async testSpeechSynthesis(text = '这是语音测试') {
+        try {
+            await this.speak(text);
+            return true;
+        } catch (error) {
+            console.error('语音测试失败:', error);
+            return false;
+        }
+    }
+
+    // 销毁实例
+    destroy() {
+        this.stopListening();
+        this.stopSpeaking();
+        
+        // 清理事件监听器
+        Object.keys(this.callbacks).forEach(key => {
+            this.callbacks[key] = null;
+        });
+
+        this.recognition = null;
+        this.synthesis = null;
+    }
+}
+
+// 如果在Node.js环境中，导出模块
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = SpeechHandler;
+}

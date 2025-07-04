@@ -1,0 +1,11 @@
+__main__/hotword/__init__.py 
+__main__/hotword/_filterbank_wrapper.so /root/.cache/bazel/_bazel_root/5633ae285b27b5b7c60069fb2192b08d/execroot/__main__/bazel-out/k8-fastbuild/bin/hotword/_filterbank_wrapper.so
+__main__/hotword/filterbank_wrapper.py /root/.cache/bazel/_bazel_root/5633ae285b27b5b7c60069fb2192b08d/execroot/__main__/bazel-out/k8-fastbuild/bin/hotword/filterbank_wrapper.py
+__main__/hotword/test_data/hixiaowen.wav /ssd1/kai.zhou/workspace/hotword/hotword/speech/hotword/hotword/test_data/hixiaowen.wav
+__main__/hotword/test_data/hixiaowen_16k_16bit.pcm /ssd1/kai.zhou/workspace/hotword/hotword/speech/hotword/hotword/test_data/hixiaowen_16k_16bit.pcm
+__main__/hotword/test_data/hixiaowen_16k_16bit.wav /ssd1/kai.zhou/workspace/hotword/hotword/speech/hotword/hotword/test_data/hixiaowen_16k_16bit.wav
+__main__/hotword/train/__init__.py 
+__main__/hotword/train/feature.py /ssd1/kai.zhou/workspace/hotword/hotword/speech/hotword/hotword/train/feature.py
+__main__/hotword/train/feature_test /root/.cache/bazel/_bazel_root/5633ae285b27b5b7c60069fb2192b08d/execroot/__main__/bazel-out/k8-fastbuild/bin/hotword/train/feature_test
+__main__/hotword/train/feature_test.py /ssd1/kai.zhou/workspace/hotword/hotword/speech/hotword/hotword/train/feature_test.py
+__main__/hotword/train/feature_test_data.py /ssd1/kai.zhou/workspace/hotword/hotword/speech/hotword/hotword/train/feature_test_data.py

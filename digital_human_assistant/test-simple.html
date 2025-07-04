@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简单API测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .input-group {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+        .loading {
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>简单API测试页面</h1>
+        <div class="input-group">
+            <label for="question">输入问题：</label>
+            <input type="text" id="question" placeholder="请输入您的问题..." value="你好，请介绍一下自己">
+        </div>
+        <button id="sendBtn" onclick="sendQuestion()">发送问题</button>
+        <div id="response" class="response" style="display: none;"></div>
+    </div>
+
+    <script>
+        async function sendQuestion() {
+            const questionInput = document.getElementById('question');
+            const responseDiv = document.getElementById('response');
+            const sendBtn = document.getElementById('sendBtn');
+            
+            const question = questionInput.value.trim();
+            if (!question) {
+                alert('请输入问题');
+                return;
+            }
+            
+            // 显示加载状态
+            responseDiv.style.display = 'block';
+            responseDiv.className = 'response loading';
+            responseDiv.textContent = '正在获取回答...';
+            sendBtn.disabled = true;
+            
+            try {
+                console.log('发送问题:', question);
+                
+                const response = await fetch('/api/qwen', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        messages: [
+                            {
+                                role: 'user',
+                                content: question
+                            }
+                        ]
+                    })
+                });
+                
+                console.log('响应状态:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API请求失败: ${response.status} - ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('响应数据:', data);
+                
+                if (data.error) {
+                    throw new Error(data.error.message || 'API返回错误');
+                }
+                
+                const answer = data.choices?.[0]?.message?.content;
+                if (!answer) {
+                    throw new Error('API返回的响应格式不正确');
+                }
+                
+                // 显示回答
+                responseDiv.className = 'response';
+                responseDiv.textContent = answer;
+                
+            } catch (error) {
+                console.error('错误:', error);
+                responseDiv.className = 'response error';
+                responseDiv.textContent = '错误: ' + error.message;
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+        
+        // 回车键发送
+        document.getElementById('question').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendQuestion();
+            }
+        });
+    </script>
+</body>
+</html> 

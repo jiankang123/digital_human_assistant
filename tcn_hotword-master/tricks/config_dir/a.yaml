@@ -1,0 +1,28 @@
+input_transcript: /ssd1/kai.zhou/corpus/jiutian/wake_up_words/jianguojianguo/trans_valid.txt
+# 多个噪声可以用','隔开
+# 如果是free talk建议信噪比高一点，如果是环境噪声信噪比可以按正常水平加，可以分别添加两次
+# noise_transcript: /media/hhd1/corpus/musan/noise/musan_split5s_trans.txt
+noise_transcript: /ssd1/kai.zhou/workspace/hotword/torch/new_data/m510/ori_trans/negative_aishell1_split5s_wav.trans
+
+output_dir: /ssd1/kai.zhou/corpus/jiutian/test_aug/
+output_transcript: /ssd1/kai.zhou/corpus/jiutian/test_aug/trans.txt
+
+# 信噪比
+snr_min: 30
+snr_max: 40
+
+# 增益(DB), 0是不增益
+gain_min: 0
+gain_max: 0
+
+# 变速(%), 1.0是不加速
+speed_min: 1.0
+speed_max: 1.0
+
+# 变调, 0应该是不变调，待确定
+shift_min: 0
+shift_max: 0
+
+# 混响, 混响强度, 不确定0是否是不加混响
+reverberance_min: 20
+reverberance_max: 20

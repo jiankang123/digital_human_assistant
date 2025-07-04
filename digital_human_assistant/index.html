@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字人交互助手 - 通义千问版</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <h1><i class="fas fa-robot"></i> 数字人交互助手 - 通义千问版</h1>
+            <div class="status-indicator">
+                <span id="connectionStatus" class="status offline">离线</span>
+            </div>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <!-- 数字人显示区域 -->
+            <div class="digital-human-section">
+                <div class="digital-human-container">
+                    <div class="digital-human" id="digitalHuman">
+                        <!-- 数字人头部 -->
+                        <div class="avatar-container">
+                            <div class="avatar">
+                                <div class="face">
+                                    <div class="eyes">
+                                        <div class="eye left-eye">
+                                            <div class="pupil"></div>
+                                        </div>
+                                        <div class="eye right-eye">
+                                            <div class="pupil"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mouth" id="mouth">
+                                        <div class="mouth-inner"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 状态指示器 -->
+                        <div class="human-status" id="humanStatus">
+                            <span class="status-text">准备就绪</span>
+                            <div class="pulse-indicator"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 音频可视化 -->
+                <div class="audio-visualizer" id="audioVisualizer">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            </div>
+
+            <!-- 交互控制区域 -->
+            <div class="interaction-section">
+                <!-- 语音控制 -->
+                <div class="voice-controls">
+                    <button class="voice-btn" id="voiceBtn" title="点击开始语音交互">
+                        <i class="fas fa-microphone"></i>
+                        <span class="btn-text">点击说话</span>
+                    </button>
+                    <div class="voice-status" id="voiceStatus">
+                        <span class="status-message">准备听取您的指令</span>
+                    </div>
+                </div>
+
+                <!-- 文字输入区域 -->
+                <div class="text-input-section">
+                    <div class="input-group">
+                        <input type="text" id="textInput" placeholder="或者在这里输入您的问题..." class="text-input">
+                        <button class="send-btn" id="sendBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 快捷问题 -->
+                <div class="quick-questions">
+                    <h3>智能对话</h3>
+                    <div class="question-buttons">
+                        <button class="quick-btn" data-question="你好，请介绍一下自己">你好</button>
+                        <button class="quick-btn" data-question="今天是几号？现在是什么季节？">日期时间</button>
+                        <button class="quick-btn" data-question="你有什么功能？能帮我做什么？">功能介绍</button>
+                        <button class="quick-btn" data-question="给我讲个有趣的故事">讲个故事</button>
+                        <button class="quick-btn" data-question="推荐一首好听的歌曲">音乐推荐</button>
+                        <button class="quick-btn" data-question="用Python写一个简单的计算器程序">编程示例</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 对话历史 -->
+        <aside class="chat-history">
+            <h3><i class="fas fa-comments"></i> 对话记录</h3>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message system-message">
+                    <div class="message-content">
+                        <p>你好！我是基于通义千问的数字人助手，很高兴为您服务！</p>
+                    </div>
+                    <div class="message-time">刚刚</div>
+                </div>
+            </div>
+            <button class="clear-history-btn" id="clearHistoryBtn">
+                <i class="fas fa-trash"></i> 清空记录
+            </button>
+        </aside>
+
+        <!-- 控制按钮区域 -->
+        <div class="control-buttons">
+            <button class="control-btn stop-btn" id="stopBtn" title="停止语音" disabled>
+                <i class="fas fa-stop"></i>
+                <span class="btn-text">停止</span>
+            </button>
+        </div>
+
+        <!-- 设置面板 -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-header">
+                <h3><i class="fas fa-cog"></i> 设置</h3>
+                <button class="close-settings" id="closeSettings">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="settings-content">
+                <div class="settings-tabs">
+                    <button class="tab-btn active" onclick="showTab('voice')">语音设置</button>
+                    <button class="tab-btn" onclick="showTab('ai')">AI设置</button>
+                </div>
+                
+                <div class="tab-content active" id="voiceTab">
+                    <div class="setting-group">
+                        <label for="speechSpeed">语音语速</label>
+                        <input type="range" id="speechSpeed" min="0.5" max="2" step="0.1" value="1">
+                        <span id="speedValue">1.0</span>
+                    </div>
+                    <div class="setting-group">
+                        <label for="speechPitch">语音音调</label>
+                        <input type="range" id="speechPitch" min="0" max="2" step="0.1" value="1">
+                        <span id="pitchValue">1.0</span>
+                    </div>
+                    <div class="setting-group">
+                        <label for="speechVolume">语音音量</label>
+                        <input type="range" id="speechVolume" min="0" max="1" step="0.1" value="0.8">
+                        <span id="volumeValue">0.8</span>
+                    </div>
+                    <div class="setting-group">
+                        <button class="test-voice-btn" id="testVoiceBtn">
+                            <i class="fas fa-volume-up"></i> 测试语音
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="aiTab">
+                    <div class="setting-group">
+                        <label>AI模型</label>
+                        <select id="aiModel">
+                            <option value="qwen-turbo" selected>通义千问-Turbo</option>
+                            <option value="qwen-plus">通义千问-Plus</option>
+                            <option value="qwen-max">通义千问-Max</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label for="temperature">创造性 (Temperature)</label>
+                        <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.7">
+                        <span id="temperatureValue">0.7</span>
+                    </div>
+                    <div class="setting-group">
+                        <label for="maxTokens">最大回复长度</label>
+                        <input type="range" id="maxTokens" min="500" max="3000" step="100" value="1500">
+                        <span id="maxTokensValue">1500</span>
+                    </div>
+                    <div class="setting-info">
+                        <small><i class="fas fa-info-circle"></i> 更高的创造性可能产生更有趣但不太可预测的回答</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设置按钮 -->
+        <button class="settings-btn" id="settingsBtn" title="设置">
+            <i class="fas fa-cog"></i>
+        </button>
+    </div>
+
+    <!-- 脚本文件 -->
+    <script src="speech-handler.js"></script>
+    <script src="digital-human.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
