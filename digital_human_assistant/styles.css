@@ -7,10 +7,42 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #0a0a0a;
     min-height: 100vh;
-    color: #333;
+    color: #fff;
     overflow-x: hidden;
+    position: relative;
+}
+
+/* 动态背景 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    z-index: -2;
+}
+
+/* 粒子背景容器 */
+.particles-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.3;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .container {
@@ -25,33 +57,69 @@ body {
     grid-template-areas: 
         "header header"
         "main chat";
+    position: relative;
+    z-index: 1;
 }
 
 /* 头部样式 */
 .header {
     grid-area: header;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
     border-radius: 20px;
     padding: 20px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 0 20px rgba(0, 255, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+    animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
 }
 
 .header h1 {
     font-size: 2rem;
     font-weight: 700;
-    color: #4a5568;
+    color: #00ffff;
     display: flex;
     align-items: center;
     gap: 12px;
+    text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+    animation: textGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes textGlow {
+    from { text-shadow: 0 0 20px rgba(0, 255, 255, 0.5), 0 0 30px rgba(0, 255, 255, 0.3); }
+    to { text-shadow: 0 0 30px rgba(0, 255, 255, 0.8), 0 0 40px rgba(0, 255, 255, 0.5); }
 }
 
 .header h1 i {
-    color: #667eea;
+    color: #00ffff;
+    animation: robotPulse 2s ease-in-out infinite;
+}
+
+@keyframes robotPulse {
+    0%, 100% { transform: scale(1) rotateZ(0deg); }
+    50% { transform: scale(1.1) rotateZ(5deg); }
 }
 
 .status-indicator .status {
@@ -61,16 +129,27 @@ body {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
 }
 
 .status.offline {
-    background: #fed7d7;
-    color: #c53030;
+    background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
 }
 
 .status.online {
-    background: #c6f6d5;
-    color: #22543d;
+    background: linear-gradient(45deg, #51cf66, #40c057);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(81, 207, 102, 0.3);
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(81, 207, 102, 0.3); }
+    50% { box-shadow: 0 0 30px rgba(81, 207, 102, 0.6); }
 }
 
 /* 主要内容区域 */
@@ -83,13 +162,16 @@ body {
 
 /* 数字人区域 */
 .digital-human-section {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
     border-radius: 20px;
     padding: 40px;
     text-align: center;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 0 20px rgba(255, 0, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 0, 255, 0.2);
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -97,6 +179,22 @@ body {
     align-items: center;
     position: relative;
     overflow: hidden;
+}
+
+.digital-human-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(255, 0, 255, 0.05), transparent 70%);
+    animation: breatheBackground 4s ease-in-out infinite;
+}
+
+@keyframes breatheBackground {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
 }
 
 .digital-human-container {
@@ -110,18 +208,41 @@ body {
     position: relative;
 }
 
+.avatar-container::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #00ffff, #ff00ff, #ffff00, #00ffff);
+    animation: rotate 4s linear infinite;
+    z-index: -1;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 .avatar {
     width: 200px;
     height: 200px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c);
+    background-size: 400% 400%;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 30px rgba(255, 255, 255, 0.1),
+        inset 0 0 20px rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
-    animation: breathe 4s ease-in-out infinite;
+    animation: breathe 4s ease-in-out infinite, gradientShift 8s ease infinite;
+    z-index: 1;
 }
 
 @keyframes breathe {
@@ -146,39 +267,49 @@ body {
 .eye {
     width: 20px;
     height: 20px;
-    background: white;
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 50%;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.1),
+        0 0 10px rgba(0, 255, 255, 0.3);
+    animation: eyeGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes eyeGlow {
+    from { box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 10px rgba(0, 255, 255, 0.3); }
+    to { box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 20px rgba(0, 255, 255, 0.6); }
 }
 
 .pupil {
     width: 12px;
     height: 12px;
-    background: #2d3748;
+    background: #000;
     border-radius: 50%;
     transition: all 0.3s ease;
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
 }
 
 /* 嘴巴 */
 .mouth {
     width: 40px;
     height: 20px;
-    background: #e53e3e;
+    background: linear-gradient(45deg, #ff6b6b, #ee5a52);
     border-radius: 0 0 40px 40px;
     margin: 0 auto;
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
 }
 
 .mouth-inner {
     width: 100%;
     height: 100%;
-    background: #c53030;
+    background: linear-gradient(45deg, #c53030, #e53e3e);
     border-radius: inherit;
     transform: scaleY(0.5);
     transition: all 0.3s ease;
@@ -187,11 +318,12 @@ body {
 /* 嘴巴说话动画 */
 .mouth.talking {
     animation: mouthTalk 0.2s ease-in-out infinite alternate;
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
 }
 
 @keyframes mouthTalk {
     0% { transform: scaleY(1); }
-    100% { transform: scaleY(1.5); }
+    100% { transform: scaleY(1.5); height: 30px; }
 }
 
 /* 眨眼动画 */
@@ -211,34 +343,44 @@ body {
     gap: 10px;
     justify-content: center;
     margin-bottom: 20px;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .status-text {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #4a5568;
+    color: #00ffff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
 }
 
 .pulse-indicator {
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: #48bb78;
+    background: #00ff00;
     animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
 }
 
 @keyframes pulse {
     0% { 
         transform: scale(1);
         opacity: 1;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
     }
     50% { 
         transform: scale(1.2);
         opacity: 0.7;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
     }
     100% { 
         transform: scale(1);
         opacity: 1;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
     }
 }
 
@@ -260,29 +402,59 @@ body {
 .audio-visualizer .bar {
     width: 6px;
     height: 10px;
-    background: #667eea;
+    background: linear-gradient(to top, #00ffff, #ff00ff);
     border-radius: 3px;
     animation: audioWave 1s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
 }
 
+.audio-visualizer .bar:nth-child(1) { animation-delay: 0s; }
 .audio-visualizer .bar:nth-child(2) { animation-delay: 0.1s; }
 .audio-visualizer .bar:nth-child(3) { animation-delay: 0.2s; }
 .audio-visualizer .bar:nth-child(4) { animation-delay: 0.3s; }
 .audio-visualizer .bar:nth-child(5) { animation-delay: 0.4s; }
 
 @keyframes audioWave {
-    0%, 100% { height: 10px; }
-    50% { height: 40px; }
+    0%, 100% { 
+        height: 10px; 
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    }
+    50% { 
+        height: 40px; 
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+    }
 }
 
 /* 交互控制区域 */
 .interaction-section {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
     border-radius: 20px;
     padding: 30px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 0 20px rgba(0, 255, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(0, 255, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.interaction-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(0, 255, 0, 0.03), transparent 70%);
+    animation: rotateBackground 20s linear infinite;
+    z-index: -1;
+}
+
+@keyframes rotateBackground {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* 语音控制 */
@@ -305,31 +477,76 @@ body {
     justify-content: center;
     gap: 8px;
     transition: all 0.3s ease;
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    box-shadow: 
+        0 10px 30px rgba(102, 126, 234, 0.3),
+        0 0 20px rgba(102, 126, 234, 0.2),
+        inset 0 0 20px rgba(255, 255, 255, 0.1);
     margin: 0 auto 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.voice-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .voice-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 
+        0 20px 50px rgba(102, 126, 234, 0.4),
+        0 0 30px rgba(102, 126, 234, 0.3),
+        inset 0 0 30px rgba(255, 255, 255, 0.2);
+}
+
+.voice-btn:hover::before {
+    opacity: 1;
 }
 
 .voice-btn:active {
-    transform: scale(0.95);
+    transform: translateY(-2px) scale(0.98);
 }
 
 .voice-btn.listening {
     background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    animation: pulse 1s ease-in-out infinite;
+    animation: listeningPulse 1s ease-in-out infinite, rotate 4s linear infinite;
+    box-shadow: 
+        0 15px 40px rgba(240, 147, 251, 0.4),
+        0 0 40px rgba(240, 147, 251, 0.6),
+        inset 0 0 30px rgba(255, 255, 255, 0.2);
+}
+
+@keyframes listeningPulse {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 
+            0 15px 40px rgba(240, 147, 251, 0.4),
+            0 0 40px rgba(240, 147, 251, 0.6);
+    }
+    50% { 
+        transform: scale(1.1);
+        box-shadow: 
+            0 20px 60px rgba(240, 147, 251, 0.6),
+            0 0 60px rgba(240, 147, 251, 0.8);
+    }
 }
 
 .voice-btn i {
     font-size: 2rem;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
 .btn-text {
     font-size: 0.9rem;
     font-weight: 600;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
 }
 
 .voice-status {
@@ -337,8 +554,9 @@ body {
 }
 
 .status-message {
-    color: #718096;
+    color: #00ffff;
     font-style: italic;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
 }
 
 /* 文字输入 */
@@ -349,11 +567,15 @@ body {
 .input-group {
     display: flex;
     gap: 10px;
-    background: white;
+    background: rgba(0, 0, 0, 0.5);
     border-radius: 15px;
     padding: 5px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e2e8f0;
+    box-shadow: 
+        0 2px 10px rgba(0, 0, 0, 0.3),
+        0 0 20px rgba(0, 255, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
 }
 
 .text-input {
@@ -364,6 +586,16 @@ body {
     font-size: 1rem;
     border-radius: 10px;
     background: transparent;
+    color: #fff;
+    placeholder-color: rgba(255, 255, 255, 0.5);
+}
+
+.text-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.text-input:focus {
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
 }
 
 .send-btn {
@@ -371,25 +603,45 @@ body {
     height: 50px;
     border-radius: 10px;
     border: none;
-    background: #667eea;
+    background: linear-gradient(135deg, #00ffff, #0099cc);
     color: white;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.send-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
 }
 
 .send-btn:hover {
-    background: #5a67d8;
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, #0099cc, #0077aa);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 5px 20px rgba(0, 255, 255, 0.4);
+}
+
+.send-btn:hover::before {
+    left: 100%;
 }
 
 /* 快捷问题 */
 .quick-questions h3 {
     margin-bottom: 15px;
-    color: #4a5568;
+    color: #00ffff;
     font-size: 1.1rem;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
 }
 
 .question-buttons {
@@ -400,43 +652,84 @@ body {
 
 .quick-btn {
     padding: 10px 16px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid rgba(0, 255, 255, 0.3);
     border-radius: 20px;
-    background: white;
-    color: #4a5568;
+    background: rgba(0, 0, 0, 0.3);
+    color: #00ffff;
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 0.9rem;
+    backdrop-filter: blur(5px);
+    position: relative;
+    overflow: hidden;
+}
+
+.quick-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+    transition: left 0.3s ease;
 }
 
 .quick-btn:hover {
-    background: #667eea;
-    color: white;
-    border-color: #667eea;
-    transform: translateY(-1px);
+    background: rgba(0, 255, 255, 0.1);
+    color: #fff;
+    border-color: #00ffff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+}
+
+.quick-btn:hover::before {
+    left: 100%;
 }
 
 /* 对话历史 */
 .chat-history {
     grid-area: chat;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
     border-radius: 20px;
     padding: 25px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 0 20px rgba(255, 255, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 0, 0.2);
     display: flex;
     flex-direction: column;
     max-height: calc(100vh - 140px);
+    position: relative;
+    overflow: hidden;
+}
+
+.chat-history::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, #ffff00, transparent);
+    animation: borderFlow 3s ease-in-out infinite;
+}
+
+@keyframes borderFlow {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
 }
 
 .chat-history h3 {
     margin-bottom: 20px;
-    color: #4a5568;
+    color: #ffff00;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
     gap: 8px;
+    text-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
 }
 
 .chat-messages {
@@ -444,21 +737,24 @@ body {
     overflow-y: auto;
     margin-bottom: 20px;
     max-height: calc(100vh - 240px);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 0, 0.3) transparent;
 }
 
 .message {
     margin-bottom: 20px;
-    animation: slideIn 0.3s ease-out;
+    animation: messageSlideIn 0.5s ease-out;
+    position: relative;
 }
 
-@keyframes slideIn {
+@keyframes messageSlideIn {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateX(-30px);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateX(0);
     }
 }
 
@@ -467,37 +763,62 @@ body {
     border-radius: 15px;
     margin-bottom: 5px;
     word-wrap: break-word;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.message-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    animation: messageShimmer 3s linear infinite;
+}
+
+@keyframes messageShimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
 }
 
 .system-message .message-content {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
     color: white;
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
 }
 
 .user-message .message-content {
-    background: #e2e8f0;
-    color: #2d3748;
+    background: rgba(0, 255, 255, 0.1);
+    color: #00ffff;
     margin-left: 20px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
 }
 
 .assistant-message .message-content {
-    background: #e6fffa;
-    color: #234e52;
+    background: rgba(0, 255, 0, 0.1);
+    color: #00ff00;
     margin-right: 20px;
+    border: 1px solid rgba(0, 255, 0, 0.3);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
 }
 
 .message-time {
     font-size: 0.8rem;
-    color: #a0aec0;
+    color: rgba(255, 255, 255, 0.5);
     text-align: right;
 }
 
 .clear-history-btn {
     padding: 10px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid rgba(255, 107, 107, 0.3);
     border-radius: 10px;
-    background: white;
-    color: #e53e3e;
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff6b6b;
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 0.9rem;
@@ -505,11 +826,57 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    backdrop-filter: blur(5px);
 }
 
 .clear-history-btn:hover {
-    background: #fed7d7;
-    border-color: #e53e3e;
+    background: rgba(255, 107, 107, 0.2);
+    border-color: #ff6b6b;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+}
+
+/* 控制按钮区域 */
+.control-buttons {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 999;
+}
+
+.control-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stop-btn {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+}
+
+.stop-btn:hover:not(:disabled) {
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+}
+
+.stop-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 /* 设置面板 */
@@ -519,13 +886,18 @@ body {
     left: 50%;
     transform: translate(-50%, -50%) scale(0);
     width: 400px;
-    background: white;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(20px);
     border-radius: 20px;
     padding: 0;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        0 0 30px rgba(0, 255, 255, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(0, 255, 255, 0.3);
     z-index: 1000;
     opacity: 0;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .settings-panel.show {
@@ -535,18 +907,20 @@ body {
 
 .settings-header {
     padding: 25px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.2);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: linear-gradient(90deg, rgba(0, 255, 255, 0.05), transparent);
 }
 
 .settings-header h3 {
-    color: #4a5568;
+    color: #00ffff;
     font-size: 1.2rem;
     display: flex;
     align-items: center;
     gap: 10px;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
 }
 
 .close-settings {
@@ -554,22 +928,64 @@ body {
     height: 35px;
     border-radius: 50%;
     border: none;
-    background: #f7fafc;
-    color: #718096;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
 }
 
 .close-settings:hover {
-    background: #e2e8f0;
-    color: #4a5568;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    transform: rotate(90deg);
 }
 
 .settings-content {
     padding: 25px;
+}
+
+.settings-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 10px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.tab-btn.active,
+.tab-btn:hover {
+    background: rgba(0, 255, 255, 0.1);
+    color: #00ffff;
+    border-color: #00ffff;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .setting-group {
@@ -579,27 +995,64 @@ body {
 .setting-group label {
     display: block;
     margin-bottom: 10px;
-    color: #4a5568;
+    color: #00ffff;
     font-weight: 600;
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
 }
 
 .setting-group input[type="range"] {
     width: 100%;
     margin-bottom: 5px;
+    background: transparent;
+    -webkit-appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, #00ffff, #0099cc);
+    outline: none;
+}
+
+.setting-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #00ffff;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    cursor: pointer;
+}
+
+.setting-group input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #00ffff;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    cursor: pointer;
+    border: none;
 }
 
 .setting-group span {
     font-size: 0.9rem;
-    color: #718096;
+    color: rgba(255, 255, 255, 0.7);
     float: right;
+}
+
+.setting-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    backdrop-filter: blur(5px);
 }
 
 .test-voice-btn {
     width: 100%;
     padding: 12px;
-    border: 1px solid #667eea;
+    border: 1px solid #00ffff;
     border-radius: 10px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #00ffff, #0099cc);
     color: white;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -608,16 +1061,86 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
 }
 
 .test-voice-btn:hover {
-    background: linear-gradient(135deg, #5a67d8, #6b46c1);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    background: linear-gradient(135deg, #0099cc, #0077aa);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 255, 255, 0.4);
 }
 
-.test-voice-btn:active {
+/* TTS状态和重置按钮样式 */
+.tts-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    border: 1px solid rgba(0, 255, 0, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+.status-indicator {
+    font-size: 12px;
+    color: #00ff00;
+    animation: statusPulse 2s infinite;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.status-indicator.warning {
+    color: #ffff00;
+    text-shadow: 0 0 5px rgba(255, 255, 0, 0.5);
+}
+
+.status-indicator.error {
+    color: #ff0000;
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}
+
+.reset-tts-btn {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+}
+
+.reset-tts-btn:hover {
+    background: linear-gradient(135deg, #ee5a52, #dc3545);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+}
+
+.reset-tts-btn:active {
     transform: translateY(0);
+}
+
+.reset-tts-btn i {
+    animation: spin 2s linear infinite;
+    animation-play-state: paused;
+}
+
+.reset-tts-btn.resetting i {
+    animation-play-state: running;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* 设置按钮 */
@@ -635,18 +1158,46 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    box-shadow: 
+        0 10px 30px rgba(102, 126, 234, 0.3),
+        0 0 20px rgba(102, 126, 234, 0.2);
     transition: all 0.3s ease;
     z-index: 999;
+    position: relative;
+    overflow: hidden;
+}
+
+.settings-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .settings-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 
+        0 15px 40px rgba(102, 126, 234, 0.4),
+        0 0 30px rgba(102, 126, 234, 0.3);
+}
+
+.settings-btn:hover::before {
+    opacity: 1;
 }
 
 .settings-btn i {
     font-size: 1.5rem;
+    animation: settingsRotate 4s linear infinite;
+}
+
+@keyframes settingsRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* 响应式设计 */
@@ -716,15 +1267,17 @@ body {
 }
 
 .chat-messages::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 3px;
 }
 
 .chat-messages::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
+    background: linear-gradient(to bottom, #00ffff, #0099cc);
     border-radius: 3px;
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
 }
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
-    background: #a1a1a1;
+    background: linear-gradient(to bottom, #0099cc, #0077aa);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
 }

@@ -133,8 +133,8 @@ class SpeechHandler {
                     errorMessage = '麦克风权限被拒绝，请允许访问麦克风';
                     break;
                 case 'network':
-                    console.log('语音识别暂时不可用，请使用文本输入');
-                    return;
+                    errorMessage = '网络错误，请检查网络连接';
+                    break;
                 case 'language-not-supported':
                     errorMessage = '不支持当前语言设置';
                     break;
@@ -354,13 +354,6 @@ class SpeechHandler {
                 clearTimeout(timeoutId);
                 this.handleTTSEnd();
                 console.error('语音播放错误:', event.error);
-                
-                // 如果是被中断的错误（用户主动停止），不显示错误信息
-                if (event.error === 'interrupted') {
-                    console.log('语音播放被用户停止');
-                    reject(new Error('interrupted'));
-                    return;
-                }
                 
                 const errorMessage = `语音播放失败: ${event.error}`;
                 if (this.callbacks.onTTSError) {

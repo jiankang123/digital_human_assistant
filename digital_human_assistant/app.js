@@ -56,7 +56,21 @@ class DigitalHumanApp {
             this.updateUIState();
             
             this.initialized = true;
-            console.log('数字人交互助手初始化完成');
+            console.log('数字人助手初始化完成');
+            
+            // 添加全局调试功能
+            window.debugTTS = () => {
+                if (this.speechHandler) {
+                    const status = this.speechHandler.getTTSStatus();
+                    console.table(status);
+                    return status;
+                }
+                return null;
+            };
+            
+            window.resetTTS = () => {
+                return this.resetTTS();
+            };
             
             // 欢迎消息
             this.addMessage('system', '您好！我是基于通义千问的数字人助手，很高兴为您服务！');
@@ -139,6 +153,13 @@ class DigitalHumanApp {
                 this.isSpeaking = false;
                 this.updateStopButtonState();
                 this.digitalHuman?.setEmotion('neutral');
+                
+                // 过滤掉interrupted错误（用户主动停止）
+                if (error.includes('interrupted')) {
+                    console.log('用户主动停止语音播放');
+                    return;
+                }
+                
                 this.showError('语音播放失败: ' + error);
             });
 
@@ -218,6 +239,16 @@ class DigitalHumanApp {
         document.getElementById('testVoiceBtn')?.addEventListener('click', () => {
             this.testVoice();
         });
+
+        // TTS重置按钮
+        document.getElementById('resetTtsBtn')?.addEventListener('click', async () => {
+            await this.resetTTS();
+        });
+
+        // 定期更新TTS状态
+        setInterval(() => {
+            this.updateTTSStatus();
+        }, 2000);
     }
 
     /**
@@ -493,6 +524,14 @@ class DigitalHumanApp {
     }
 
     /**
+     * 显示成功信息
+     */
+    showSuccess(message) {
+        console.log('成功:', message);
+        this.addMessage('system', `成功: ${message}`);
+    }
+
+    /**
      * 测试语音
      */
     testVoice() {
@@ -509,6 +548,91 @@ class DigitalHumanApp {
             this.speechHandler.updateConfig({
                 synthesis: this.voiceSettings
             });
+        }
+    }
+
+    /**
+     * 重置TTS引擎
+     */
+    async resetTTS() {
+        const resetBtn = document.getElementById('resetTtsBtn');
+        const statusText = document.getElementById('statusText');
+        
+        if (resetBtn) {
+            resetBtn.classList.add('resetting');
+            resetBtn.disabled = true;
+        }
+        
+        if (statusText) {
+            statusText.textContent = '重置中...';
+        }
+        
+        try {
+            if (this.speechHandler) {
+                await this.speechHandler.manualResetTTS();
+                this.showSuccess('TTS引擎重置成功');
+            }
+        } catch (error) {
+            console.error('TTS重置失败:', error);
+            this.showError('TTS重置失败: ' + error.message);
+        } finally {
+            if (resetBtn) {
+                resetBtn.classList.remove('resetting');
+                resetBtn.disabled = false;
+            }
+            
+            // 更新状态
+            setTimeout(() => {
+                this.updateTTSStatus();
+            }, 500);
+        }
+    }
+
+    /**
+     * 更新TTS状态显示
+     */
+    updateTTSStatus() {
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        
+        if (!statusIndicator || !statusText || !this.speechHandler) {
+            return;
+        }
+        
+        try {
+            const status = this.speechHandler.getTTSStatus();
+            
+            // 移除之前的状态类
+            statusIndicator.classList.remove('warning', 'error');
+            
+            if (status.queueLength > 3) {
+                // 队列过长
+                statusIndicator.classList.add('warning');
+                statusText.textContent = `队列繁忙 (${status.queueLength})`;
+            } else if (status.synthesisPending && !status.isSpeaking) {
+                // 可能卡住了
+                statusIndicator.classList.add('error');
+                statusText.textContent = '可能卡住';
+            } else if (status.isSpeaking) {
+                // 正在播放
+                statusText.textContent = '正在播放';
+            } else if (status.queueLength > 0) {
+                // 有队列
+                statusText.textContent = `队列: ${status.queueLength}`;
+            } else {
+                // 正常状态
+                statusText.textContent = '就绪';
+            }
+            
+            // 显示语音名称
+            if (status.voiceName && status.voiceName !== 'default') {
+                statusText.title = `语音: ${status.voiceName}`;
+            }
+            
+        } catch (error) {
+            statusIndicator.classList.add('error');
+            statusText.textContent = '状态异常';
+            console.error('获取TTS状态失败:', error);
         }
     }
 }
